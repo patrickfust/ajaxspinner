@@ -34,8 +34,8 @@ If you ie use http://getbootstrap.com, you have the glyphicons (http://glyphicon
 you can use an icon:
 
 ```html
-<span id="networkActivity" class="inactive">
-    <span class="glyphicon glyphicon-flash"></span>
+<span id="networkActivity">
+    <span class="glyphicon glyphicon-flash inactive"></span>
 </span>
 ```
 
