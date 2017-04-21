@@ -4,64 +4,108 @@
  * There's two parts
  * - An big Ajax-spinner, that fills the entire screen, but is only shown if it's a long time process.
  * - An little network indicator, that are turned on instantly every time an ajax call is in process.
+ * See: https://github.com/patrickfust/ajaxspinner
  */
 (function ($) {
 
-    // Plugin definition.
-    $.fn.ajaxSpinner = function( options ) {
+    var ajaxSpinnerShown = false; // Do we show the spinner right now?
+    var ajaxSpinnerStartTime = 0; // When did we start to show the spinner?
+    var opts;
 
-        // Extend our default options with those provided.
-        // Note that the first argument to extend is an empty
-        // object – this is to keep from overriding our "defaults" object.
-        var opts = $.extend( {}, $.fn.ajaxSpinner.defaults, options );
+    var methods = {
+        /**
+         * Initializes AjaxSpinner
+         */
+        init : function(options) {
+            // Extend our default options with those provided.
+            // Note that the first argument to extend is an empty
+            // object – this is to keep from overriding our "defaults" object.
+            opts = $.extend( {}, $.fn.ajaxSpinner.defaults, options );
 
-        var ajaxSpinner = false; // Do we show the spinner right now?
-        var ajaxSpinnerStartTime = 0; // When did we start to show the spinner?
+            $(opts.loadingContainerId).hide(); // Make sure the loading container is hidden in the beginning
 
-        $(opts.loadingContainerId).hide();
+            $(document).ajaxStart(function () { ajaxStart(); });
+            $(document).ajaxComplete(function () { ajaxComplete(); });
+
+            return this;
+        },
+        /**
+         * Show the spinner
+         */
+        show : function() {
+            $(opts.loadingContainerId).fadeIn(opts.fadeIn);
+            ajaxSpinnerStartTime = new Date().getTime();
+            ajaxSpinnerShown = true;
+            return this;
+        },
+        /**
+         * Hide the spinner
+         */
+        hide : function() {
+            $(opts.loadingContainerId).fadeOut(opts.fadeOut, function() { ajaxSpinnerShown = false; });
+            return this;
+        },
+        /**
+         * Is the AjaxSpinner shown?
+         * @returns {boolean}
+         */
+        isShown : function() {
+            return ajaxSpinnerShown;
+        }
+    };
+
+    function ajaxStart() {
+        ajaxSpinnerShown = true;
         var networkActivityIcon = $(opts.networkActivityIconId);
-
-        $(document).ajaxStart(function () {
-            ajaxSpinner = true;
-            networkActivityIcon.removeClass(opts.inactiveClass);
-            networkActivityIcon.addClass(opts.activeClass);
-            setTimeout(function () {
-                if (ajaxSpinner === true) {
-                    $(opts.loadingContainerId).fadeIn(opts.fadeIn);
-                    ajaxSpinnerStartTime = new Date().getTime();
-                }
-            }, opts.spinnerTimeBeforeShowingSpinner);
-        });
-
-        $(document).ajaxComplete(function () {
-            networkActivityIcon.addClass(opts.inactiveClass);
-            networkActivityIcon.removeClass(opts.activeClass);
-            var spinnerIsShown = new Date().getTime() - ajaxSpinnerStartTime;
-            if (spinnerIsShown > opts.spinnerMinimumShowing) {
-                // Time is up
-                $(opts.loadingContainerId).fadeOut(opts.fadeOut, function() { ajaxSpinner = false; });
-            } else {
-                // Wait a little longer, so we don't see the entire screen flashing
-                var waitALittleLonger = opts.spinnerMinimumShowing - spinnerIsShown;
-                if (waitALittleLonger < 50) {
-                    waitALittleLonger = 50; // Wait no less than 50 ms
-                }
-                setTimeout(function() {
-                    $(opts.loadingContainerId).fadeOut(opts.fadeOut, function() { ajaxSpinner = false; });
-                }, waitALittleLonger);
+        networkActivityIcon.removeClass(opts.inactiveClass);
+        networkActivityIcon.addClass(opts.activeClass);
+        setTimeout(function () {
+            if (ajaxSpinnerShown === true) {
+                methods.show.apply(this, arguments);
             }
-        });
+        }, opts.spinnerTimeBeforeShowingSpinner);
+    }
 
-        return this;
+    function ajaxComplete() {
+        var networkActivityIcon = $(opts.networkActivityIconId);
+        networkActivityIcon.addClass(opts.inactiveClass);
+        networkActivityIcon.removeClass(opts.activeClass);
+        var spinnerIsShown = new Date().getTime() - ajaxSpinnerStartTime;
+        if (spinnerIsShown > opts.spinnerMinimumShowing) {
+            // Time is up
+            methods.hide.apply(this, arguments);
+        } else {
+            // Wait a little longer, so we don't see the entire screen flashing
+            var waitALittleLonger = opts.spinnerMinimumShowing - spinnerIsShown;
+            if (waitALittleLonger < opts.spinnerMinimumWaitTime) {
+                waitALittleLonger = opts.spinnerMinimumWaitTime; // Wait no less than spinnerMinimumWaitTime
+            }
+            setTimeout(function() {
+                methods.hide.apply(this, arguments);
+            }, waitALittleLonger);
+        }
+    }
+
+    // Plugin definition.
+    $.fn.ajaxSpinner = function (methodOrOptions) {
+        if (methods[methodOrOptions]) {
+            return methods[methodOrOptions].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof methodOrOptions === 'object' || !methodOrOptions) {
+            // Default to "init"
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + methodOrOptions + ' does not exist on jQuery.ajaxSpinner');
+        }
     };
 
     // Plugin defaults – added as a property on our plugin function.
     $.fn.ajaxSpinner.defaults = {
-        spinnerMinimumShowing: 600,             // Minimum time to show spinner
-        spinnerTimeBeforeShowingSpinner: 500,   // We won't show spinner before this time is passed
-        fadeIn: 100,                            // Fade in time for spinner
-        fadeOut: 100,                           // Fade out time for spinner
-        loadingContainerId: "#loadingContainer",// Id for loadingContainer
+        spinnerMinimumShowing: 600,                     // Minimum time to show spinner
+        spinnerTimeBeforeShowingSpinner: 500,           // We won't show spinner before this time is passed
+        spinnerMinimumWaitTime: 50,                     // When waiting, don't wait less than this
+        fadeIn: 100,                                    // Fade in time for spinner
+        fadeOut: 100,                                   // Fade out time for spinner
+        loadingContainerId: "#loadingContainer",        // Id for loadingContainer
         networkActivityIconId: "#networkActivity span", // Selector for small icon that quickly shows network activity
         activeClass: "active",                          // Added class for 'networkActivityIconId' when network there's network activity
         inactiveClass: 'inactive'                       // Added class for 'networkActivityIconId' when network there's no network activity

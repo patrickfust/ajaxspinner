@@ -59,18 +59,38 @@ Example:
 }
 ```
 
-# Options / API
+# Methods
+
+Method | Description
+------ | -----------
+`init` | Initializes the AjaxSpinner.
+`isShown` | Returns true/false to tell whether or not the spinner is currently shown.
+`show` | Force showing spinner
+`hide` | Force hiding spinner
+
+Methods are called using parameter to `ajaxSpinner`.
+
+## Example
+
+### Show whether or not the spinner is currently shown
+
+```javascript
+alert('Spinner is shown: ' + $().ajaxSpinner('isShown'));
+```
+
+# Options
 
 Option | Type | Default | Description
 ------ | ---- | ------- | -----------
 `spinnerMinimumShowing` | Integer | `600` | Minimum time in ms to show spinner. If we've started to show the spinner, this is the minimum time it's shown.
 `spinnerTimeBeforeShowingSpinner` | Integer | 500 | We won't show spinner before this time (in ms) is passed.
-`fadeIn` | Integer | `100` | Fade in time for spinner
-`fadeOut` | Integer | `100` | Fade out time for spinner
-`loadingContainerId` | String | `#loadingContainer` | Id for loadingContainer
-`networkActivityIconId` | String | `#networkActivity span` | Selector for small icon that quickly shows network activity
-`activeClass` | String | `active`| Added class for 'networkActivityIconId' when network there's network activity
-`inactiveClass` | String | `inactive` | Added class for 'networkActivityIconId' when network there's no network activity
+`spinnerMinimumWaitTime` | Integer | 50 | When waiting, don't wait less than this.
+`fadeIn` | Integer | `100` | Fade in time for spinner.
+`fadeOut` | Integer | `100` | Fade out time for spinner.
+`loadingContainerId` | String | `#loadingContainer` | Id for loadingContainer.
+`networkActivityIconId` | String | `#networkActivity span` | Selector for small icon that quickly shows network activity.
+`activeClass` | String | `active`| Added class for 'networkActivityIconId' when network there's network activity.
+`inactiveClass` | String | `inactive` | Added class for 'networkActivityIconId' when network there's no network activity.
 
 ## Example of overriding defaults
 
