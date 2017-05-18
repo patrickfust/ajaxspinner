@@ -80,17 +80,19 @@ alert('Spinner is shown: ' + $().ajaxSpinner('isShown'));
 
 # Options
 
-Option | Type | Default | Description
------- | ---- | ------- | -----------
-`spinnerMinimumShowing` | Integer | `600` | Minimum time in ms to show spinner. If we've started to show the spinner, this is the minimum time it's shown.
-`spinnerTimeBeforeShowingSpinner` | Integer | 500 | We won't show spinner before this time (in ms) is passed.
-`spinnerMinimumWaitTime` | Integer | 50 | When waiting, don't wait less than this.
-`fadeIn` | Integer | `100` | Fade in time for spinner.
-`fadeOut` | Integer | `100` | Fade out time for spinner.
-`loadingContainerId` | String | `#loadingContainer` | Id for loadingContainer.
-`networkActivityIconId` | String | `#networkActivity span` | Selector for small icon that quickly shows network activity.
-`activeClass` | String | `active`| Added class for 'networkActivityIconId' when network there's network activity.
-`inactiveClass` | String | `inactive` | Added class for 'networkActivityIconId' when network there's no network activity.
+Option                              | Type    | Default                 | Description
+----------------------------------- | ------- | ----------------------- | -----------
+`spinnerMinimumShowing`             | Integer | `600`                   | Minimum time in ms to show spinner. If we've started to show the spinner, this is the minimum time it's shown.
+`spinnerTimeBeforeShowingSpinner`   | Integer | `500`                   | We won't show spinner before this time (in ms) is passed.
+`spinnerMinimumWaitTime`            | Integer | `50`                    | When waiting, don't wait less than this.
+`spinnerMaximumTime`                | Integer | `60000`                 | Maximum time to show spinner. Only in use when `checkEveryMilliSeconds > 0`
+`fadeIn`                            | Integer | `100`                   | Fade in time for spinner.
+`fadeOut`                           | Integer | `100`                   | Fade out time for spinner.
+`loadingContainerId`                | String  | `#loadingContainer`     | Id for loadingContainer.
+`networkActivityIconId`             | String  | `#networkActivity span` | Selector for small icon that quickly shows network activity.
+`activeClass`                       | String  | `active`                | Added class for 'networkActivityIconId' when network there's network activity.
+`inactiveClass`                     | String  | `inactive`              | Added class for 'networkActivityIconId' when network there's no network activity.
+`checkEveryMilliSeconds`            | Integer | `1000`                  | Check every x milliseconds, to see if ajax is still running or spinnerMaximumTime is passed
 
 ## Example of overriding defaults
 

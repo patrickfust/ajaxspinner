@@ -4,7 +4,6 @@
  * There's two parts
  * - An big Ajax-spinner, that fills the entire screen, but is only shown if it's a long time process.
  * - An little network indicator, that are turned on instantly every time an ajax call is in process.
- * See: https://github.com/patrickfust/ajaxspinner
  */
 (function ($) {
 
@@ -36,6 +35,11 @@
             $(opts.loadingContainerId).fadeIn(opts.fadeIn);
             ajaxSpinnerStartTime = new Date().getTime();
             ajaxSpinnerShown = true;
+            if (opts.checkEveryMilliSeconds > 0) {
+                setTimeout(function() {
+                    checkIsAjaxStillActive();
+                }, opts.checkEveryMilliSeconds);
+            }
             return this;
         },
         /**
@@ -53,6 +57,20 @@
             return ajaxSpinnerShown;
         }
     };
+
+    function checkIsAjaxStillActive() {
+        var spinnerIsShown = new Date().getTime() - ajaxSpinnerStartTime;
+        if (jQuery.active === 0 || spinnerIsShown > opts.spinnerMaximumTime) {
+            // Is not longer active or max time is passed
+            if (ajaxSpinnerShown) {
+                ajaxComplete();
+            }
+        } else {
+            setTimeout(function() {
+                checkIsAjaxStillActive();
+            }, opts.checkEveryMilliSeconds);
+        }
+    }
 
     function ajaxStart() {
         ajaxSpinnerShown = true;
@@ -103,12 +121,14 @@
         spinnerMinimumShowing: 600,                     // Minimum time to show spinner
         spinnerTimeBeforeShowingSpinner: 500,           // We won't show spinner before this time is passed
         spinnerMinimumWaitTime: 50,                     // When waiting, don't wait less than this
+        spinnerMaximumTime: 60000,                      // Maximum time to show spinner. Only in use when checkEveryMilliSeconds > 0
         fadeIn: 100,                                    // Fade in time for spinner
         fadeOut: 100,                                   // Fade out time for spinner
         loadingContainerId: "#loadingContainer",        // Id for loadingContainer
         networkActivityIconId: "#networkActivity span", // Selector for small icon that quickly shows network activity
         activeClass: "active",                          // Added class for 'networkActivityIconId' when network there's network activity
-        inactiveClass: 'inactive'                       // Added class for 'networkActivityIconId' when network there's no network activity
+        inactiveClass: 'inactive',                      // Added class for 'networkActivityIconId' when network there's no network activity
+        checkEveryMilliSeconds: 1000                    // Check every x milliseconds, to see if ajax is still running or spinnerMaximumTime is passed
     };
 
 })(jQuery);
